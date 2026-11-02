@@ -90,6 +90,7 @@ agent-desktop element-at --window-id w-20011 --xy 253,172
 - It snapshots the window, takes the refs whose bounds contain the point, and hit-tests them from the smallest up. `match` is the first one the point reaches, else the smallest, and `hit` says which: `reaches_target`, `intercepted` (with `intercepted_by`) or `unknown`.
 - `intercepted` usually means another window covers the point. A ref action such as `click` still works there; physical input at the point would land on the cover.
 - `match` is `null` when no ref contains the point. The app draws that area itself; use physical input.
+- Read `complete` first. When it is `false` the snapshot ran out of budget (`truncated`, `nodes_observed`), so a `null` match or a broad ancestor match may only mean the element was not observed. Raise `--timeout-ms` and retry before you fall back to physical input.
 - Coordinates are screen points, the space `list-windows` bounds use. `--max-depth` (default 10) and `--timeout-ms` (default 3000) work as in `snapshot`.
 
 ```json

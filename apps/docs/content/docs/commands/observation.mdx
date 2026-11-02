@@ -133,10 +133,12 @@ It snapshots the window, takes the refs whose bounds contain the point, and hit-
 
 `match` is `null` when no ref contains the point, which happens in apps that draw their content themselves. The refs belong to the returned `snapshot_id`.
 
+`complete` says whether the snapshot behind the answer saw the whole window, as in `snapshot`. When it is `false`, the response also carries `truncated: true` and `nodes_observed`, and a `null` match or an ancestor match may only mean the element under the point was not observed. Raise `--timeout-ms` and retry.
+
 ```json
 { "version": "2.5", "ok": true, "command": "element-at",
   "data": { "snapshot_id": "s3zu2hepg64y4", "app": "TextEdit", "window_id": "w-20011",
-            "point": { "x": 526, "y": 450 }, "candidates": 2, "hit": "reaches_target",
+            "point": { "x": 526, "y": 450 }, "candidates": 2, "complete": true, "hit": "reaches_target",
             "match": { "ref_id": "@s3zu2hepg64y4:e2", "role": "textfield", "name": null,
                        "bounds": { "x": 233, "y": 258, "width": 586, "height": 382 },
                        "available_actions": ["RightClick", "SetValue", "SetFocus", "TypeText"] } } }

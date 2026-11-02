@@ -1,4 +1,4 @@
-use super::{candidates_at, pick};
+use super::{attach_completeness, candidates_at, pick};
 use crate::{AccessibilityNode, AdapterError, HitTestResult, NodePresentation, Point, Rect};
 
 fn rect(x: f64, y: f64, width: f64, height: f64) -> Rect {
@@ -132,4 +132,22 @@ fn a_probe_error_counts_as_unknown() {
 #[test]
 fn no_candidate_means_no_match() {
     assert_eq!(pick(&[], |_| Ok(HitTestResult::ReachesTarget)), None);
+}
+
+#[test]
+fn a_complete_snapshot_says_so_without_partial_fields() {
+    let mut response = serde_json::json!({ "match": null });
+    attach_completeness(&mut response, true, 42);
+    assert_eq!(response["complete"], true);
+    assert!(response.get("truncated").is_none());
+    assert!(response.get("nodes_observed").is_none());
+}
+
+#[test]
+fn a_partial_snapshot_is_reported_like_snapshot_reports_it() {
+    let mut response = serde_json::json!({ "match": null });
+    attach_completeness(&mut response, false, 17);
+    assert_eq!(response["complete"], false);
+    assert_eq!(response["truncated"], true);
+    assert_eq!(response["nodes_observed"], 17);
 }

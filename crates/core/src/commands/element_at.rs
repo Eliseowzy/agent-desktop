@@ -161,6 +161,7 @@ fn response(
         "candidates": candidates.len(),
         "match": Value::Null,
     });
+    attach_completeness(&mut response, result.complete, result.nodes_observed);
     let Some((index, hit)) = chosen else {
         return response;
     };
@@ -181,6 +182,18 @@ fn response(
         HitTestResult::Unknown => response["hit"] = json!("unknown"),
     }
     response
+}
+
+/// Reports whether the snapshot behind the candidates saw the whole window,
+/// with the same fields `snapshot` uses. A partial snapshot can miss the
+/// element under the point, so a null match or an ancestor match from it is
+/// not evidence that nothing more specific is there.
+pub(crate) fn attach_completeness(response: &mut Value, complete: bool, nodes_observed: usize) {
+    response["complete"] = json!(complete);
+    if !complete {
+        response["truncated"] = json!(true);
+        response["nodes_observed"] = json!(nodes_observed);
+    }
 }
 
 #[cfg(test)]
